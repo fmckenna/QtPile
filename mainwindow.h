@@ -2,10 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <qcustomplot.h>
 
 // fixed parameters (limits for piles and soil layers)
 #define MAXPILES 3
 #define MAXLAYERS 3
+
+// global constants
+#define GAMMA_WATER 9.81
 
 // functions
 #define ABS(X) (X<0.0?-X:X)
@@ -15,11 +19,28 @@ typedef struct {
     int pileIdx;
     int nodeIdx;
     double x;
+    double reductionFactorLeftMovement;
+    double reductionFactorRightMovement;
 } HEAD_NODE_TYPE;
 
 #define SWAP(X,Y) {HEAD_NODE_TYPE tmp=Y; Y=X, Y=tmp; }
 
 static QVector<QColor> LINE_COLOR({Qt::blue,Qt::red,Qt::green,Qt::cyan,Qt::magenta,Qt::yellow});
+static QVector<QColor> BRUSH_COLOR({
+                                       QColor(255, 127, 0, 127),
+                                       QColor(191,  95, 0, 127),
+                                       QColor(127,  63, 0, 127),
+                                       QColor(127, 255, 0, 127),
+                                       QColor( 95, 191, 0, 127),
+                                       QColor( 63, 127, 0, 127),
+                                       QColor(127, 255, 255, 255),
+                                       QColor( 95, 191, 255, 255),
+                                       QColor( 63, 127, 255, 255),
+                                       QColor(127, 255, 255, 127),
+                                       QColor( 95, 191, 255, 127),
+                                       QColor( 63, 127, 255, 127)
+                                    });
+#define GROUND_WATER_BLUE QColor(127,127,255,192)
 
 // forward declaration of classes
 class soilLayer;
@@ -40,6 +61,13 @@ public:
     void doAnalysis(void);
     void fetchSettings();
     void updateUI();
+    void updateSystemPlot();
+    void setActiveLayer(int);
+    void updateLayerState();
+    int  findActiveLayer();
+    int  adjustLayersToPiles();
+    void plotResults(QCustomPlot *, QVector<double> z, QVector<double> xOffset,
+                     QVector<QVector<double> >, QVector<QVector<double> >);
 
 private slots:
     // soil parameter values entered/changed
@@ -49,10 +77,15 @@ private slots:
 
     // menu actions
     void on_actionExit_triggered();
+    void on_actionNew_triggered();
+    void on_actionSave_triggered();
     void on_action_Open_triggered();
     void on_actionExport_to_OpenSees_triggered();
     void on_actionReset_triggered();
     void on_actionFEA_parameters_triggered();
+    void on_actionLicense_Information_triggered();
+    void on_action_About_triggered();
+    void on_actionPreferences_triggered();
 
     // check boxes
     void on_chkBox_assume_rigid_cap_clicked(bool checked);
@@ -65,26 +98,31 @@ private slots:
     void on_freeLength_valueChanged(double arg1);
     void on_Emodulus_valueChanged(double arg1);
     void on_groundWaterTable_valueChanged(double arg1);
+    void on_xOffset_valueChanged(double arg1);
+    void on_pileIndex_valueChanged(int arg1);
+    void on_btn_deletePile_clicked();
+    void on_btn_newPile_clicked();
+    void on_systemPlot_selectionChangedByUser();
 
     // material table slots
-    void updateInfo(QTableWidgetItem *);
     void on_appliedForce_valueChanged(double arg1);
     void on_appliedForce_editingFinished();
+    void on_updateInfo(QTableWidgetItem *);
 
+    // layer selection slots
+    void on_chkBox_layer1_clicked();
+    void on_chkBox_layer2_clicked();
+    void on_chkBox_layer3_clicked();
+    void on_layerSelectedInSystemPlot(bool selected);
 
-    void on_actionLicense_Information_triggered();
+    // soil property slots
+    void on_layerThickness_valueChanged(double arg1);
+    void on_layerDryWeight_valueChanged(double arg1);
+    void on_layerSaturatedWeight_valueChanged(double arg1);
+    void on_layerFrictionAngle_valueChanged(double arg1);
+    void on_layerShearModulus_valueChanged(double arg1);
 
-    void on_btn_deletePile_clicked();
-
-    void on_btn_newPile_clicked();
-
-    void on_xOffset_valueChanged(double arg1);
-
-    void on_pileIndex_valueChanged(int arg1);
-
-    void on_action_About_triggered();
-
-    void on_actionPreferences_triggered();
+    void on_properties_currentChanged(int index);
 
 private:
     Q_OBJECT
@@ -110,7 +148,6 @@ private:
     QVector<soilLayer> mSoilLayers;
 
     void setupLayers();
-    void reDrawTable();
 
     // temporary variables
     double gamma;
@@ -166,6 +203,11 @@ private:
     double EI = 1.;
     double EA = 1.;
     double GJ = 1.0e12;
+
+    // others
+    QVector<HEAD_NODE_TYPE> headNodeList = QVector<HEAD_NODE_TYPE>(MAXPILES, {-1,-1,0.0, 1.0, 1.0});
+    int activePileIdx;
+    int activeLayerIdx;
 
 };
 
