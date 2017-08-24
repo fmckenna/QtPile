@@ -21,7 +21,7 @@ PRODUCT_NAME = 'QtPile'
 
 #win32: INCLUDES += "./ops"
 #win32: LIBS += -llapack -lblas
-unix:  QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-unused-variable
+unix:  QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-unused-variable -std=c++11
 win32: QMAKE_CXXFLAGS += /Y-
 
 include(OPS_includes.pro)
@@ -38,8 +38,11 @@ SOURCES += main.cpp\
         surveysplashscreen.cpp \
         soilmat.cpp \
         utilWindows/copyrightdialog.cpp \
-    utilWindows/dialogabout.cpp \
-    utilWindows/dialogpreferences.cpp
+        utilWindows/dialogabout.cpp \
+        utilWindows/dialogpreferences.cpp \
+        utilWindows/dialogfuturefeature.cpp \
+    ../widgets/Common/FooterWidget.cpp \
+    ../widgets/Common/HeaderWidget.cpp
         
 HEADERS  += mainwindow.h \
         qcustomplot.h \
@@ -47,19 +50,21 @@ HEADERS  += mainwindow.h \
         surveysplashscreen.h \
         soilmat.h \
         utilWindows/copyrightdialog.h \
-    utilWindows/dialogabout.h \
-    utilWindows/dialogpreferences.h
+        utilWindows/dialogabout.h \
+        utilWindows/dialogpreferences.h \
+        utilWindows/dialogfuturefeature.h \
+    ../widgets/Common/FooterWidget.h \
+    ../widgets/Common/HeaderWidget.h
 
-# WHY DO WE NEED THIS ?????
-HEADERS  += ui_mainwindow.h
-        
 FORMS    += mainwindow.ui \
         materialdbinterface.ui \
         surveysplashscreen.ui \
         utilWindows/copyrightdialog.ui \
-    utilWindows/dialogabout.ui \
-    utilWindows/dialogpreferences.ui
-        
+        utilWindows/dialogabout.ui \
+        utilWindows/dialogpreferences.ui \
+        utilWindows/dialogfuturefeature.ui
 
 RESOURCES += \
     qtpileresources.qrc
+
+DISTFILES +=
